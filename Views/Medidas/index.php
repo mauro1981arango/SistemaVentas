@@ -1,0 +1,46 @@
+<?php include "Views/Templates/header.php"; ?>
+<ol class="breadcrumb mb-4">
+   <li class="breadcrumb-item active">Medidas</li>
+</ol>
+<button class="btn btn-primary mb-2" type="button" onclick="frmMedida();"><i class="fas fa-plus"></i></button>
+<table class="table table-primary" id="tblMedida">
+   <thead class="table-dark">
+      <tr>
+         <th>Id</th>
+         <th>Medida</th>
+         <th>Identificador</th>
+         <th>Estado</th>
+         <th></th>
+      </tr>
+   </thead>
+   <tbody>
+   </tbody>
+</table>
+<div class="modal fade" id="nuevaMedida" tabindex="-1" aria-labelledby="my_modal" aria-hidden="true">
+   <div class="modal-dialog">
+      <div class="modal-content">
+         <div class="modal-header bg-info">
+            <h5 class="modal-title" id="title"></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+         </div>
+         <div class="modal-body">
+            <form method="post" id="frmMedida">
+               <div class="form-floating mb-3">
+                  <input type="hidden" id="id_medida" name="id_medida">
+                  <input id="medida" class="form-control" type="text" name="medida" placeholder="Nombre de la medida">
+                  <label for="medida">Medida</label>
+               </div>
+               <div class="form-floating mb-3">
+                  <input id="abreviatura" class="form-control" type="text" name="abreviatura"
+                     placeholder="Nombre de la abreviatura">
+                  <label for="abreviatura">Nombre Corto</label>
+               </div>
+               <button class="btn btn-primary" type="button" onclick="registrarMedida(event);"
+                  id="btnAccion">Registrar</button>
+               <button class="btn btn-danger" type="button" data-bs-dismiss="modal">Cancelar</button>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+<?php include "Views/Templates/footer.php"; ?>
