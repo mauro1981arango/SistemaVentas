@@ -2,7 +2,7 @@
 <!-- Ponemos un título al historial de compras -->
 <div class="card-header bg-success text-white text-center mt-1">
    <h5>Historial De Compras</h5>
-</div>
+</div> <br>
 <!-- Creamos la tabla para ver el historial de compras -->
 <table class="table table-light table-border-0 table-hover mt-1" id="tabla_historial_compras">
    <thead class="table-dark">
