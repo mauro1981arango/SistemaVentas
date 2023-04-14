@@ -192,38 +192,45 @@ class Compras extends Controller
     public function registrarVenta($id_cliente)
     {
         $id_usuario = $_SESSION['id_usuario'];
-        date_default_timezone_set('America/Bogota');
-        $fecha = date('Y-m-d');
-        $hora = date('H:i:s');
-        $total = $this->model->totalPagarCompra('detalle_temp', $id_usuario);
-        $data = $this->model->registrarVenta($id_usuario, $id_cliente, $total['total'], $fecha, $hora);
-        // Creamos método en el modelo ComprasModel.php para traer el ultimo id_compra generado.
-        if ($data == 'ok') {
-            $detalle = $this->model->getDetalleCompra('detalle_temp', $id_usuario);
-            $id_venta = $this->model->id_venta('id_venta');
-            foreach ($detalle as $row) {
-                $id_producto = $row['id_producto'];
-                $precio_venta = $row['precio_venta'];
-                $cantidad = $row['cantidad'];
-                $descuento = $row['descuento'];
-                $subtotal = $row['subtotal'];
-                $subtotal = ($cantidad * $precio_venta) - $descuento;
-                // Se llamado al método registrarDetalleVenta desde ComprasModel.php.
-                $this->model->guardarDetalleVenta($id_venta['id_venta'], $id_producto, $id_usuario, $precio_venta, $cantidad, $descuento, $subtotal);
-                // Realizamos una consulta a la tabla productos para verificar el stock del producto.
-                $stock_actual = $this->model->getProductos($id_producto);
-                $stock = $stock_actual['stock'] - $cantidad;
-                // Luego de registrar el detalleCompraProducto se procedoe actualizar el stock de los productos.
-                $this->model->actualizarStock($stock, $id_producto);
-            }
-            $data == 'ok';
-            // Se llama el método vaciarDetalle para limpiar la tabla luego de registrar la compra.
-            $vaciar = $this->model->vaciarDetalle('detalle_temp', $id_usuario);
-            if ($vaciar == 'ok') {
-                $msg = array('msg' => 'ok', 'id_venta' => $id_venta['id_venta']);
-            }
+        $verificar = $this->model->veirficarCaja($id_usuario);
+        if (empty($verificar)) {
+            $msg = array('msg' => 'La caja esta cerrada', 'icono' => 'warning');
+            echo json_encode($msg, JSON_UNESCAPED_UNICODE);
+            die();
         } else {
-            $msg = array('msg' => 'No se pudo generar la Venta', 'icono' => 'warning');
+            date_default_timezone_set('America/Bogota');
+            $fecha = date('Y-m-d');
+            $hora = date('H:i:s');
+            $total = $this->model->totalPagarCompra('detalle_temp', $id_usuario);
+            $data = $this->model->registrarVenta($id_usuario, $id_cliente, $total['total'], $fecha, $hora);
+            // Creamos método en el modelo ComprasModel.php para traer el ultimo id_compra generado.
+            if ($data == 'ok') {
+                $detalle = $this->model->getDetalleCompra('detalle_temp', $id_usuario);
+                $id_venta = $this->model->id_venta('id_venta');
+                foreach ($detalle as $row) {
+                    $id_producto = $row['id_producto'];
+                    $precio_venta = $row['precio_venta'];
+                    $cantidad = $row['cantidad'];
+                    $descuento = $row['descuento'];
+                    $subtotal = $row['subtotal'];
+                    $subtotal = ($cantidad * $precio_venta) - $descuento;
+                    // Se llamado al método registrarDetalleVenta desde ComprasModel.php.
+                    $this->model->guardarDetalleVenta($id_venta['id_venta'], $id_producto, $id_usuario, $precio_venta, $cantidad, $descuento, $subtotal);
+                    // Realizamos una consulta a la tabla productos para verificar el stock del producto.
+                    $stock_actual = $this->model->getProductos($id_producto);
+                    $stock = $stock_actual['stock'] - $cantidad;
+                    // Luego de registrar el detalleCompraProducto se procedoe actualizar el stock de los productos.
+                    $this->model->actualizarStock($stock, $id_producto);
+                }
+                $data == 'ok';
+                // Se llama el método vaciarDetalle para limpiar la tabla luego de registrar la compra.
+                $vaciar = $this->model->vaciarDetalle('detalle_temp', $id_usuario);
+                if ($vaciar == 'ok') {
+                    $msg = array('msg' => 'ok', 'id_venta' => $id_venta['id_venta']);
+                }
+            } else {
+                $msg = array('msg' => 'No se pudo generar la Venta', 'icono' => 'warning');
+            }
         }
         echo json_encode($msg, JSON_UNESCAPED_UNICODE);
         die();
@@ -449,9 +456,9 @@ class Compras extends Controller
         if (empty($id_detalle) || empty($descuento)) {
             $msg = array('message' => 'No se pudo calcular el descuento, faltan datos.', 'type' => 'danger');
         } else {
-            $ddescuento_actual = $this->model->verificarDescuento($id_detalle);
-            $descuento_total = $ddescuento_actual['descuento'] + $descuento;
-            $subtotal = ($ddescuento_actual['cantidad'] * $ddescuento_actual['precio_venta']) - $descuento_total;
+            $descuento_actual = $this->model->verificarDescuento($id_detalle);
+            $descuento_total = $descuento_actual['descuento'] + $descuento;
+            $subtotal = ($descuento_actual['cantidad'] * $descuento_actual['precio_venta']) - $descuento_total;
             $data = $this->model->actualizarDescuento($descuento_total, $subtotal, $id_detalle);
             if ($data == 'ok') {
                 $msg = array('message' => 'Descuento aplicado', 'type' => 'success');

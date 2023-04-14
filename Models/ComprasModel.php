@@ -101,7 +101,7 @@ class ComprasModel extends Query
 
    public function getDescuento(int $id_venta)
    {
-      // Calsulamos el descuento para las ventas.
+      // Calculamos el descuento para las ventas.
       $sql = "SELECT descuento, SUM(descuento) AS total FROM detalle_ventas WHERE id_venta = $id_venta";
       $data = $this->select($sql);
       return $data;
